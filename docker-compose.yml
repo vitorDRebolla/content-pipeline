@@ -1,0 +1,51 @@
+services:
+  service:
+    build: ./service
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - wordpress
+    networks:
+      - pipeline
+
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      CONTENT_PIPELINE_SECRET: ${WEBHOOK_SECRET}
+      WORDPRESS_CONFIG_EXTRA: "define('CONTENT_PIPELINE_SECRET', getenv('CONTENT_PIPELINE_SECRET'));"
+    volumes:
+      - ./wordpress/plugins/content-pipeline:/var/www/html/wp-content/plugins/content-pipeline
+      - ./wordpress/themes/tela-theme:/var/www/html/wp-content/themes/tela-theme
+      - wp_data:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - pipeline
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - pipeline
+
+volumes:
+  wp_data:
+  mysql_data:
+
+networks:
+  pipeline:
+    driver: bridge
