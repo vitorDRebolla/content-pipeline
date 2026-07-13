@@ -1,0 +1,53 @@
+// Bootstrap variable overrides — must come before the import
+$primary:                  #6c3fc5;
+$font-family-sans-serif:   'Inter', system-ui, -apple-system, sans-serif;
+$body-color:               #1a1a2e;
+$line-height-base:         1.75;
+$headings-font-weight:     700;
+$border-radius:            0.5rem;
+$link-color:               $primary;
+$link-decoration:          none;
+
+@use "bootstrap/scss/bootstrap";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.post-hero {
+  background: linear-gradient(135deg, #f8f6ff 0%, #f0f4ff 100%);
+  border-bottom: 1px solid #e8e0ff;
+}
+
+.post-title {
+  color: $body-color;
+  line-height: 1.2;
+}
+
+.post-meta {
+  font-size: 0.9rem;
+}
+
+.post-content {
+  font-size: 1.1rem;
+  line-height: 1.85;
+
+  p { margin-bottom: 1.5rem; }
+
+  h2,
+  h3,
+  h4 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+}
+
+.category-badge {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.35em 0.75em;
+}
+
+.site-footer {
+  background-color: #1a1a2e !important;
+}
