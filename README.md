@@ -99,6 +99,17 @@ npm run build  # production build
 
 Bootstrap is a dev dependency imported via SASS `@use` — customize variables in `src/scss/main.scss` before the `@use "bootstrap/scss/bootstrap"` line.
 
+## Screenshots
+
+### Generated WordPress post
+![Generated post](docs/screenshots/generated-post.png)
+
+### Successful API request
+![API response](docs/screenshots/api-success.png)
+
+### WordPress admin — post created
+![WordPress admin](docs/screenshots/wp-admin-post.png)
+
 ## Security notes
 
 - The plugin endpoint is protected by a custom `X-Content-Pipeline-Secret` header validated with `hash_equals()` to prevent timing attacks

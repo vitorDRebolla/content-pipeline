@@ -1,4 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { z } from 'zod'
+import { GenerationError } from '../errors'
 
 export interface GeneratedContent {
   title: string
@@ -7,8 +9,19 @@ export interface GeneratedContent {
   status: 'publish'
 }
 
+const generatedContentSchema = z.object({
+  title: z.string().min(1).max(200),
+  content: z.string().min(1),
+  excerpt: z.string().min(1).max(500),
+})
+
+const modelName = process.env.GEMINI_MODEL
+if (!modelName) {
+  throw new Error('GEMINI_MODEL is not configured')
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite' })
+const model = genAI.getGenerativeModel({ model: modelName })
 
 export async function generateContent(raw: { title: string; text: string }): Promise<GeneratedContent> {
   const prompt = `You are a content writer. Based on the article below, write a new, original article on the same topic.
@@ -24,11 +37,15 @@ Original article:
 Title: ${raw.title}
 Body: ${raw.text.substring(0, 3000)}`
 
-  const result = await model.generateContent(prompt)
-  const text = result.response.text().trim().replace(/^```json\n?/, '').replace(/\n?```$/, '')
+  try {
+    const result = await model.generateContent(prompt)
+    const text = result.response.text().trim().replace(/^```json\n?/, '').replace(/\n?```$/, '')
 
-  const parsed = JSON.parse(text) as GeneratedContent
-  parsed.status = 'publish'
+    const parsed = generatedContentSchema.parse(JSON.parse(text))
 
-  return parsed
+    return { ...parsed, status: 'publish' }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    throw new GenerationError(`Failed to generate content: ${message}`)
+  }
 }

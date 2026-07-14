@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { scrapeUrl } from '../services/scraper'
 import { generateContent } from '../services/gemini'
 import { publishToWordPress } from '../services/webhook'
+import { ScrapingError, GenerationError, PublishingError } from '../errors'
 
 const router = Router()
 
@@ -9,7 +10,7 @@ router.post('/generate-post', async (req: Request, res: Response) => {
   const { url } = req.body
 
   if (!url || !isValidUrl(url)) {
-    res.status(400).json({ error: 'A valid URL is required' })
+    res.status(400).json({ success: false, error: 'A valid URL is required' })
     return
   }
 
@@ -18,11 +19,24 @@ router.post('/generate-post', async (req: Request, res: Response) => {
     const generated = await generateContent(raw)
     const post = await publishToWordPress(generated)
 
-    res.json({ success: true, postId: post.id, postUrl: post.link })
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Something went wrong'
-    console.error('[generate-post]', message)
-    res.status(500).json({ error: message })
+    res.status(201).json({ success: true, postId: post.id, postUrl: post.link })
+  } catch (err) {
+    console.error('[generate-post]', err)
+
+    if (err instanceof ScrapingError) {
+      res.status(502).json({ success: false, stage: 'scraping', error: err.message })
+      return
+    }
+    if (err instanceof GenerationError) {
+      res.status(502).json({ success: false, stage: 'generation', error: err.message })
+      return
+    }
+    if (err instanceof PublishingError) {
+      res.status(502).json({ success: false, stage: 'publishing', error: err.message })
+      return
+    }
+
+    res.status(500).json({ success: false, error: 'Unexpected error' })
   }
 })
 

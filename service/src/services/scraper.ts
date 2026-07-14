@@ -1,28 +1,55 @@
 import axios from 'axios'
 import * as cheerio from 'cheerio'
+import { ScrapingError } from '../errors'
 
 export interface ScrapedContent {
   title: string
   text: string
 }
 
+function isAllowedUrl(url: string): boolean {
+  const parsed = new URL(url)
+
+  if (!['http:', 'https:'].includes(parsed.protocol)) return false
+
+  const host = parsed.hostname
+  if (host === 'localhost' || host === '127.0.0.1' || host === '::1') return false
+  if (/^10\./.test(host)) return false
+  if (/^192\.168\./.test(host)) return false
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return false
+
+  return true
+}
+
 export async function scrapeUrl(url: string): Promise<ScrapedContent> {
-  const { data } = await axios.get(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ContentBot/1.0)' },
-    timeout: 10000,
-  })
+  if (!isAllowedUrl(url)) {
+    throw new ScrapingError('URL is not allowed')
+  }
 
-  const $ = cheerio.load(data)
+  try {
+    const { data } = await axios.get(url, {
+      timeout: 10_000,
+      maxContentLength: 2_000_000,
+      maxBodyLength: 2_000_000,
+      headers: { 'User-Agent': 'ContentPipeline/1.0' },
+    })
 
-  const title =
-    $('h1').first().text().trim() ||
-    $('title').first().text().trim()
+    const $ = cheerio.load(data)
 
-  const paragraphs = $('p')
-    .map((_, el) => $(el).text().trim())
-    .get()
-    .filter((p) => p.length > 50)
-    .join('\n\n')
+    const title =
+      $('h1').first().text().trim() ||
+      $('title').first().text().trim()
 
-  return { title, text: paragraphs }
+    const paragraphs = $('p')
+      .map((_, el) => $(el).text().trim())
+      .get()
+      .filter((p) => p.length > 50)
+      .join('\n\n')
+
+    return { title, text: paragraphs }
+  } catch (err) {
+    if (err instanceof ScrapingError) throw err
+    const message = err instanceof Error ? err.message : String(err)
+    throw new ScrapingError(`Failed to scrape URL: ${message}`)
+  }
 }
