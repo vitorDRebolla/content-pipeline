@@ -29,8 +29,8 @@ export async function scrapeUrl(url: string): Promise<ScrapedContent> {
   try {
     const { data } = await axios.get(url, {
       timeout: 10_000,
-      maxContentLength: 2_000_000,
-      maxBodyLength: 2_000_000,
+      maxContentLength: 10_000_000,
+      maxBodyLength: 10_000_000,
       headers: { 'User-Agent': 'ContentPipeline/1.0' },
     })
 
