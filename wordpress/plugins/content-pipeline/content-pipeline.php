@@ -19,11 +19,10 @@ add_action( 'rest_api_init', function () {
 } );
 
 function cp_publish_post( WP_REST_Request $request ): WP_REST_Response {
-    $auth     = $request->get_header( 'authorization' );
-    $secret   = defined( 'CONTENT_PIPELINE_SECRET' ) ? CONTENT_PIPELINE_SECRET : '';
-    $expected = 'Bearer ' . $secret;
+    $provided_secret = $request->get_header( 'x-content-pipeline-secret' );
+    $secret          = defined( 'CONTENT_PIPELINE_SECRET' ) ? CONTENT_PIPELINE_SECRET : '';
 
-    if ( empty( $secret ) || $auth !== $expected ) {
+    if ( empty( $secret ) || empty( $provided_secret ) || ! hash_equals( $secret, $provided_secret ) ) {
         return new WP_REST_Response( [ 'error' => 'Unauthorized' ], 401 );
     }
 

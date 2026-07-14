@@ -13,7 +13,7 @@ export async function publishToWordPress(content: GeneratedContent): Promise<Wor
   const { data } = await axios.post<WordPressPost>(webhookUrl!, content, {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${secret}`,
+      'X-Content-Pipeline-Secret': secret!,
     },
     timeout: 15000,
   })

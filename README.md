@@ -10,7 +10,7 @@ POST /api/generate-post { url }
          ▼
  Content Service (Node.js + TypeScript)
   1. Scrapes the provided URL with Axios + Cheerio
-  2. Rewrites the content using Google Gemini (gemini-1.5-flash)
+  2. Rewrites the content using Google Gemini (gemini-3.1-flash-lite)
   3. POSTs the result to the WordPress plugin webhook
          │
          ▼
@@ -49,7 +49,8 @@ cp .env.example .env
 | Variable | Description |
 |---|---|
 | `GEMINI_API_KEY` | Your Gemini API key from Google AI Studio |
-| `WEBHOOK_SECRET` | Any random string shared between the service and the plugin |
+| `GEMINI_MODEL` | Gemini model to use (default: `gemini-3.1-flash-lite`) |
+| `WEBHOOK_SECRET` | A strong random secret shared between the service and the plugin — generate with `openssl rand -hex 32` |
 | `WORDPRESS_WEBHOOK_URL` | Leave as-is for local Docker setup |
 | `MYSQL_*` | Leave as-is or change to your preference |
 
@@ -100,6 +101,7 @@ Bootstrap is a dev dependency imported via SASS `@use` — customize variables i
 
 ## Security notes
 
-- The plugin endpoint is protected by a shared secret token (`Authorization: Bearer <WEBHOOK_SECRET>`)
+- The plugin endpoint is protected by a custom `X-Content-Pipeline-Secret` header validated with `hash_equals()` to prevent timing attacks
 - `.env` is gitignored — never commit it
+- Generate a strong secret with `openssl rand -hex 32`
 - In production: use HTTPS, rotate the webhook secret, and add rate limiting to `/api/generate-post`
