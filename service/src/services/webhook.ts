@@ -1,6 +1,12 @@
 import axios from 'axios'
 import { GeneratedContent } from './gemini'
-import { PublishingError } from '../errors'
+
+export class PublishingError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PublishingError'
+  }
+}
 
 export interface WordPressPost {
   id: number

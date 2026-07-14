@@ -1,12 +1,12 @@
-// Bootstrap variable overrides — must come before the import
-$primary:                  #6c3fc5;
-$font-family-sans-serif:   'Inter', system-ui, -apple-system, sans-serif;
-$body-color:               #1a1a2e;
-$line-height-base:         1.75;
-$headings-font-weight:     700;
-$border-radius:            0.5rem;
-$link-color:               $primary;
-$link-decoration:          none;
+// vars before import
+$primary: #6c3fc5;
+$font-family-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
+$body-color: #1a1a2e;
+$line-height-base: 1.75;
+$headings-font-weight: 700;
+$border-radius: 0.5rem;
+$link-color: $primary;
+$link-decoration: none;
 
 @use "bootstrap/scss/bootstrap";
 

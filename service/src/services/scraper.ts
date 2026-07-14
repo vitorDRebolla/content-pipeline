@@ -1,6 +1,12 @@
 import axios from 'axios'
 import * as cheerio from 'cheerio'
-import { ScrapingError } from '../errors'
+
+export class ScrapingError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'ScrapingError'
+  }
+}
 
 export interface ScrapedContent {
   title: string
@@ -31,7 +37,7 @@ export async function scrapeUrl(url: string): Promise<ScrapedContent> {
       timeout: 10_000,
       maxContentLength: 10_000_000,
       maxBodyLength: 10_000_000,
-      headers: { 'User-Agent': 'ContentPipeline/1.0' },
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1)' },
     })
 
     const $ = cheerio.load(data)

@@ -1,6 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { z } from 'zod'
-import { GenerationError } from '../errors'
+
+export class GenerationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'GenerationError'
+  }
+}
 
 export interface GeneratedContent {
   title: string
