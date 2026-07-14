@@ -19,9 +19,9 @@ export async function scrapeUrl(url: string): Promise<ScrapedContent> {
     $('title').first().text().trim()
 
   const paragraphs = $('p')
-    .map((_: number, el: cheerio.Element) => $(el).text().trim())
+    .map((_, el) => $(el).text().trim())
     .get()
-    .filter((p: string) => p.length > 50)
+    .filter((p) => p.length > 50)
     .join('\n\n')
 
   return { title, text: paragraphs }
