@@ -39,7 +39,7 @@ POST /api/generate-post { url }
 **1. Clone the repo and copy the env file:**
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/vitorDRebolla/content-pipeline.git
 cd content-pipeline
 cp .env.example .env
 ```
