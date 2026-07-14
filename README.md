@@ -94,6 +94,15 @@ Response:
 
 Open the `postUrl` to see the published post rendered in the Tela theme.
 
+## Testing
+
+```bash
+cd service
+npm test
+```
+
+The test suite covers input validation, the `/health` endpoint, and SSRF protection in the scraper. The services (Gemini, WordPress webhook) are mocked so no external connections are needed.
+
 ## Theme development
 
 ```bash
@@ -105,9 +114,30 @@ npm run build  # production build
 
 Bootstrap is a dev dependency imported via SASS `@use` — customize variables in `src/scss/main.scss` before the `@use "bootstrap/scss/bootstrap"` line.
 
+The compiled assets (`assets/css/main.css`, `assets/js/main.js`) are committed to the repo so the recruiter doesn't need to run a build step.
+
+## Error responses
+
+The service returns structured JSON for all errors:
+
+```json
+{ "success": false, "stage": "scraping", "error": "URL is not allowed" }
+{ "success": false, "stage": "generation", "error": "Failed to generate content: ..." }
+{ "success": false, "stage": "publishing", "error": "Failed to publish to WordPress: ..." }
+```
+
+The `stage` field tells you exactly where in the pipeline the failure occurred.
+
+## Known limitations
+
+- **Synchronous pipeline:** Scraping + generation + publishing all happen within a single HTTP request. Gemini can take 5–10 seconds on larger articles. For production use, this should be an async job queue (BullMQ + Redis).
+- **JS-rendered pages:** Cheerio only parses static HTML. Pages that require JavaScript to render content won't be scraped correctly. Swap the scraper module for Puppeteer to handle those.
+- **Rate limiting:** There's no per-IP rate limiting on the endpoint. In production, add `express-rate-limit` or handle it at the API gateway level.
+
 ## Security notes
 
-- The plugin endpoint is protected by a custom `X-Content-Pipeline-Secret` header validated with `hash_equals()` to prevent timing attacks
-- `.env` is gitignored — never commit it
-- Generate a strong secret with `openssl rand -hex 32`
-- In production: use HTTPS, rotate the webhook secret, and add rate limiting to `/api/generate-post`
+- The plugin endpoint is protected by a custom `X-Content-Pipeline-Secret` header validated with `hash_equals()` to prevent timing attacks. The standard `Authorization` header is not used because Apache strips it by default in PHP setups.
+- The scraper blocks requests to localhost, private IP ranges, and the AWS metadata endpoint (`169.254.169.254`) to prevent SSRF.
+- `.env` is gitignored — never commit it.
+- Generate a strong secret with `openssl rand -hex 32`.
+- In production: use HTTPS, rotate the webhook secret quarterly, and add rate limiting to `/api/generate-post`.

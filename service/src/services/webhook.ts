@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { GeneratedContent } from './gemini'
+import { config } from '../config'
 
 export class PublishingError extends Error {
   constructor(message: string) {
@@ -14,14 +15,11 @@ export interface WordPressPost {
 }
 
 export async function publishToWordPress(content: GeneratedContent): Promise<WordPressPost> {
-  const webhookUrl = process.env.WORDPRESS_WEBHOOK_URL
-  const secret = process.env.WEBHOOK_SECRET
-
   try {
-    const { data } = await axios.post<WordPressPost>(webhookUrl!, content, {
+    const { data } = await axios.post<WordPressPost>(config.WORDPRESS_WEBHOOK_URL, content, {
       headers: {
         'Content-Type': 'application/json',
-        'X-Content-Pipeline-Secret': secret!,
+        'X-Content-Pipeline-Secret': config.WEBHOOK_SECRET,
       },
       timeout: 15000,
     })

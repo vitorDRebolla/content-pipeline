@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { z } from 'zod'
+import { config } from '../config'
 
 export class GenerationError extends Error {
   constructor(message: string) {
@@ -21,13 +22,8 @@ const generatedContentSchema = z.object({
   excerpt: z.string().min(1).max(500),
 })
 
-const modelName = process.env.GEMINI_MODEL
-if (!modelName) {
-  throw new Error('GEMINI_MODEL is not configured')
-}
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-const model = genAI.getGenerativeModel({ model: modelName })
+const genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY)
+const model = genAI.getGenerativeModel({ model: config.GEMINI_MODEL })
 
 export async function generateContent(raw: { title: string; text: string }): Promise<GeneratedContent> {
   const prompt = `You are a content writer. Based on the article below, write a new, original article on the same topic.

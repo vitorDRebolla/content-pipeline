@@ -19,10 +19,14 @@ function isAllowedUrl(url: string): boolean {
   if (!['http:', 'https:'].includes(parsed.protocol)) return false
 
   const host = parsed.hostname
-  if (host === 'localhost' || host === '127.0.0.1' || host === '::1') return false
+  if (host === 'localhost' || host === '::1') return false
+  if (/^127\./.test(host)) return false
+  if (host === '0.0.0.0') return false
+  if (/^169\.254\./.test(host)) return false
   if (/^10\./.test(host)) return false
   if (/^192\.168\./.test(host)) return false
   if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return false
+  if (/^fc[0-9a-f][0-9a-f]:/i.test(host) || /^fe[89ab][0-9a-f]:/i.test(host)) return false
 
   return true
 }

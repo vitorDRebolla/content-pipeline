@@ -1,10 +1,7 @@
 import { Router, Request, Response } from 'express'
-import { scrapeUrl } from '../services/scraper'
-import { generateContent } from '../services/gemini'
-import { publishToWordPress } from '../services/webhook'
-import { ScrapingError } from '../services/scraper'
-import { GenerationError } from '../services/gemini'
-import { PublishingError } from '../services/webhook'
+import { scrapeUrl, ScrapingError } from '../services/scraper'
+import { generateContent, GenerationError } from '../services/gemini'
+import { publishToWordPress, PublishingError } from '../services/webhook'
 
 const router = Router()
 

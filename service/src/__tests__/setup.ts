@@ -1,0 +1,5 @@
+process.env.GEMINI_API_KEY = 'test-api-key'
+process.env.GEMINI_MODEL = 'test-model'
+process.env.WORDPRESS_WEBHOOK_URL = 'http://localhost/wp?rest_route=/content-pipeline/v1/publish'
+process.env.WEBHOOK_SECRET = 'test-secret'
+process.env.PORT = '3001'

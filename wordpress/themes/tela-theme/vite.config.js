@@ -12,7 +12,7 @@ export default defineConfig({
         entryFileNames: 'js/[name].js',
         chunkFileNames: 'js/[name].js',
         assetFileNames: (info) => {
-          if (info.name && info.name.endsWith('.css')) return 'css/[name][extname]'
+          if (info.name && info.name.endsWith('.css')) return 'css/main[extname]'
           return '[name][extname]'
         },
       },

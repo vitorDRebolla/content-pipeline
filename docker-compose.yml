@@ -6,12 +6,13 @@ services:
     env_file:
       - .env
     depends_on:
-      - wordpress
+      wordpress:
+        condition: service_started
     networks:
       - pipeline
 
   wordpress:
-    image: wordpress:latest
+    image: wordpress:6.7.2-php8.3-apache
     ports:
       - "8080:80"
     environment:
@@ -26,12 +27,13 @@ services:
       - ./wordpress/themes/tela-theme:/var/www/html/wp-content/themes/tela-theme
       - wp_data:/var/www/html
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - pipeline
 
   mysql:
-    image: mysql:8
+    image: mysql:8.4
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -39,6 +41,12 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     networks:
       - pipeline
 
