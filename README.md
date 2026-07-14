@@ -57,10 +57,16 @@ cp .env.example .env
 **3. Start everything:**
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
 **4. Complete the WordPress installer at `http://localhost:8080`**
+
+> If you see "Error establishing a database connection", MySQL is still initializing. Wait 10–15 seconds and run:
+> ```bash
+> docker compose restart wordpress
+> ```
+> Then refresh the page.
 
 Go through the setup wizard, then:
 - **Plugins** → activate **Content Pipeline**
@@ -98,17 +104,6 @@ npm run build  # production build
 ```
 
 Bootstrap is a dev dependency imported via SASS `@use` — customize variables in `src/scss/main.scss` before the `@use "bootstrap/scss/bootstrap"` line.
-
-## Screenshots
-
-### Generated WordPress post
-![Generated post](docs/screenshots/generated-post.png)
-
-### Successful API request
-![API response](docs/screenshots/api-success.png)
-
-### WordPress admin — post created
-![WordPress admin](docs/screenshots/wp-admin-post.png)
 
 ## Security notes
 
